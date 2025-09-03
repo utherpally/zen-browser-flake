@@ -27,7 +27,7 @@ let
     "zen-browser"
   ];
 
-  linuxConfigPath = ".zen";
+  linuxConfigPath = ".config/.zen";
   darwinConfigPath = "Library/Application Support/Zen";
 
   configPath = "${(if pkgs.stdenv.isDarwin then darwinConfigPath else linuxConfigPath)}";
