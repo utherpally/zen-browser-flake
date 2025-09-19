@@ -225,7 +225,7 @@ To setup your own extensions you should:
 
 - `profiles.*.spaces` (attrsOf submodule): Declare profile's \[work\]spaces.
   - `name` (string) Name of space, defaults to submodule/attribute name.
-  - `id` (string) **Required.** UUID v4 of space. **Changing this after a rebuild will re-create the space as 
+  - `id` (string) **Required.** UUID v4 of space. **Changing this after a rebuild will re-create the space as
     a new one,** losing opened tabs, groups, etc. If `spacesForce` is true, the space with the previous UUID will be deleted.
   - `position` (unsigned integer) Position/order of space in the left bar.
   - `icon` (null or (string or path)) Emoji, URI or file path for icon to be used as space icon.
@@ -333,7 +333,53 @@ Check the [Home Manager Reference](#home-manager-reference).
 }
 ```
 
+## Bonus
+
+### XDG MIME Associations
+
+To set Zen Browser as the default application for various file types and URL schemes, you can add the following configuration to your Home Manager setup:
+
+```nix
+{
+  xdg.mimeApps = let
+    value = let
+      zen-browser = inputs.zen-browser.packages.${system}.beta; # or twilight
+    in
+      zen-browser.meta.desktopFileName;
+
+    associations = builtins.listToAttrs (map (name: {
+        inherit name value;
+      }) [
+        "application/x-extension-shtml"
+        "application/x-extension-xhtml"
+        "application/x-extension-html"
+        "application/x-extension-xht"
+        "application/x-extension-htm"
+        "x-scheme-handler/unknown"
+        "x-scheme-handler/mailto"
+        "x-scheme-handler/chrome"
+        "x-scheme-handler/about"
+        "x-scheme-handler/https"
+        "x-scheme-handler/http"
+        "application/xhtml+xml"
+        "application/json"
+        "text/plain"
+        "text/html"
+      ]);
+  in {
+    associations.added = associations;
+    defaultApplications = associations;
+  };
+}
+```
+
 ## Troubleshooting
+
+#### The requested URL returned error: 404
+
+This usually happens when the Zen team deletes a beta release from the official repository. They do this to keep only stable artifacts available. See [#105](https://github.com/0xc000022070/zen-browser-flake/issues/105#issuecomment-3243452133) and [#112](https://github.com/0xc000022070/zen-browser-flake/issues/112#issuecomment-3262519193) for further context.
+
+You can either revert your nix input update or wait until CI refreshes [sources.json](../sources.json).
 
 #### Zen not seeing my GPU
 
@@ -344,7 +390,7 @@ Check [No WebGL context](https://github.com/0xc000022070/zen-browser-flake/issue
 
 #### 1Password constantly requires password
 
-You may want to set `policies.DisableAppUpdate = false;` in your policies.json file. See <https://github.com/0xc000022070/zen-browser-flake/issues/48>. 
+You may want to set `policies.DisableAppUpdate = false;` in your policies.json file. See [#48](https://github.com/0xc000022070/zen-browser-flake/issues/48).
 
 ## Contributing
 
